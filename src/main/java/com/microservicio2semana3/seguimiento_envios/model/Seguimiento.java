@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-//import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
@@ -45,7 +45,7 @@ public class Seguimiento {
 
 
     @NotBlank(message = "La fecha no puede estar vacia") //validacion de que no este vacio
-    //@Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "La fecha debe tener el formato dd/MM/yyyy") //validacion de que tenga el formato dd/MM/yyyy
+    @Pattern(regexp = "^\\d{2}/\\d{2}/\\d{4}$", message = "La fecha debe tener el formato dd/MM/yyyy") //validacion de que tenga el formato dd/MM/yyyy
     @Column(name = "FECHA") //nombre de la columna en la base de datos
     @JsonProperty("FECHA") //nombre del atributo en el json
     @FechaValida //validacion de la fecha
