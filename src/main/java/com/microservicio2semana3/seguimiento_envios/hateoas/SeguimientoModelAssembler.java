@@ -1,6 +1,6 @@
 package com.microservicio2semana3.seguimiento_envios.hateoas;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*; // Importa funciones para generar enlaces
-import com.microservicio2semana3.seguimiento_envios.controllers.seguimientoController;
+import com.microservicio2semana3.seguimiento_envios.controllers.SeguimientoController;
 import com.microservicio2semana3.seguimiento_envios.model.Seguimiento;
 
 import org.springframework.hateoas.EntityModel;
@@ -14,11 +14,11 @@ public class SeguimientoModelAssembler implements RepresentationModelAssembler<S
     @Override
     public @NonNull EntityModel<Seguimiento> toModel(@NonNull Seguimiento seguimiento) {
         return EntityModel.of(seguimiento,
-                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(seguimiento.getId())).withSelfRel(),
-                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("all"),
-                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento)).withRel("create"),
-                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(seguimiento.getId())).withRel("delete"),
-                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId(), seguimiento)).withRel("update"));
+                linkTo(methodOn(SeguimientoController.class).retornaSeguimientoById(seguimiento.getId())).withSelfRel(),
+                linkTo(methodOn(SeguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("all"),
+                linkTo(methodOn(SeguimientoController.class).crearSeguimiento(seguimiento)).withRel("create"),
+                linkTo(methodOn(SeguimientoController.class).eliminarSeguimientoEnvio(seguimiento.getId())).withRel("delete"),
+                linkTo(methodOn(SeguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId(), seguimiento)).withRel("update"));
     }
     
 }

@@ -26,13 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/seguimiento")
-public class seguimientoController {
+public class SeguimientoController {
 
     //@Autowired
     private final SeguimientoService seguimientoService;
     private SeguimientoModelAssembler assembler;
 
-    public seguimientoController(SeguimientoService seguimientoService, SeguimientoModelAssembler assembler) {
+    public SeguimientoController(SeguimientoService seguimientoService, SeguimientoModelAssembler assembler) {
         this.seguimientoService = seguimientoService;
         this.assembler = assembler;
     }
@@ -54,7 +54,7 @@ public class seguimientoController {
 
             //return ResponseEntity.ok(new ApiResult<>("Lista de Seguimientos de envios encontrados : ", seguimientos, HttpStatus.OK.value()));   
             CollectionModel<EntityModel<Seguimiento>> collectionModel = CollectionModel.of(models,
-            linkTo(methodOn(seguimientoController.class)
+            linkTo(methodOn(SeguimientoController.class)
             .retornaTodosLosSeguimientosDeEnvios())
             .withSelfRel());
 
@@ -83,11 +83,11 @@ public class seguimientoController {
 
                 //links HATEOAS
                 List<Link> links = List.of(
-                    linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
-                    linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
-                    linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
-                    linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
-                    linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+                    linkTo(methodOn(SeguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                    linkTo(methodOn(SeguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                    linkTo(methodOn(SeguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
+                    linkTo(methodOn(SeguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
+                    linkTo(methodOn(SeguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
                 );
                 return ResponseEntity.ok(new ApiResult<>("Seguimiento de envios encontrado : ", seguimiento.get(), HttpStatus.OK.value(),links)); 
             }
@@ -113,11 +113,11 @@ public class seguimientoController {
 
             //links HATEOAS
             List<Link> links = List.of(
-                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(seguimiento.getId())).withSelfRel(),
-                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId() , seguimiento)).withRel("Actualizar Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(seguimiento.getId())).withRel("Eliminar Seguimiento de Envios")
+                linkTo(methodOn(SeguimientoController.class).retornaSeguimientoById(seguimiento.getId())).withSelfRel(),
+                linkTo(methodOn(SeguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId() , seguimiento)).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).eliminarSeguimientoEnvio(seguimiento.getId())).withRel("Eliminar Seguimiento de Envios")
             );
 
             ApiResult<List<Seguimiento>> respuesta = new ApiResult<>(
@@ -154,11 +154,11 @@ public class seguimientoController {
 
             //links HATEOAS
             List<Link> links = List.of(
-                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
-                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId(), seguimiento)).withRel("Actualizar Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+                linkTo(methodOn(SeguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                linkTo(methodOn(SeguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId(), seguimiento)).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
             );
 
             //si el seguimiento existe, se actualiza
@@ -198,11 +198,11 @@ public class seguimientoController {
 
             //links HATEOAS
             List<Link> links = List.of(
-                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
-                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
-                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+                linkTo(methodOn(SeguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                linkTo(methodOn(SeguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(SeguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
             );
 
             //si encuentra el seguimiento, se elimina
