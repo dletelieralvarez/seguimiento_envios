@@ -1,19 +1,25 @@
 package com.microservicio2semana3.seguimiento_envios.controllers;
+import com.microservicio2semana3.seguimiento_envios.hateoas.SeguimientoModelAssembler;
 import com.microservicio2semana3.seguimiento_envios.model.ApiResult; 
 import com.microservicio2semana3.seguimiento_envios.model.Seguimiento;
 import com.microservicio2semana3.seguimiento_envios.services.SeguimientoService;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;  
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 
@@ -22,16 +28,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/seguimiento")
 public class seguimientoController {
 
-    @Autowired
-    //private final SeguimientoService seguimientoService;
-    private SeguimientoService seguimientoService;
+    //@Autowired
+    private final SeguimientoService seguimientoService;
+    private SeguimientoModelAssembler assembler;
 
-    //public seguimientoController(SeguimientoService seguimientoService) {
-    //    this.seguimientoService = seguimientoService;
-    //}
+    public seguimientoController(SeguimientoService seguimientoService, SeguimientoModelAssembler assembler) {
+        this.seguimientoService = seguimientoService;
+        this.assembler = assembler;
+    }
 
     @GetMapping()
-    public ResponseEntity<ApiResult<List<Seguimiento>>> retornaTodosLosSeguimientosDeEnvios() {
+    public ResponseEntity<ApiResult<CollectionModel<EntityModel<Seguimiento>>>> retornaTodosLosSeguimientosDeEnvios() {
         try{
             log.info("Get / seguimiento - Retorna todos los seguimientos de envios");
             List<Seguimiento> seguimientos = seguimientoService.getSeguimientos();
@@ -40,8 +47,24 @@ public class seguimientoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResult<>("No se encontraron seguimientos de envios", null, HttpStatus.NOT_FOUND.value()));
             }
+            
+            List<EntityModel<Seguimiento>> models = seguimientos.stream()
+                    .map(assembler::toModel)
+                    .collect(Collectors.toList());
 
-            return ResponseEntity.ok(new ApiResult<>("Lista de Seguimientos de envios encontrados : ", seguimientos, HttpStatus.OK.value()));   
+            //return ResponseEntity.ok(new ApiResult<>("Lista de Seguimientos de envios encontrados : ", seguimientos, HttpStatus.OK.value()));   
+            CollectionModel<EntityModel<Seguimiento>> collectionModel = CollectionModel.of(models,
+            linkTo(methodOn(seguimientoController.class)
+            .retornaTodosLosSeguimientosDeEnvios())
+            .withSelfRel());
+
+            ApiResult<CollectionModel<EntityModel<Seguimiento>>> apiResult = new ApiResult<>(
+            "Lista de Seguimiento de envios encontrada",
+            collectionModel,
+            HttpStatus.OK.value()
+        );
+            return ResponseEntity.ok(apiResult);
+
         }
         catch (Exception e) {
             log.error("Error al obtener los seguimientos de envios: {}", e.getMessage());
@@ -57,7 +80,16 @@ public class seguimientoController {
             Optional<Seguimiento> seguimiento = seguimientoService.getSeguimientoById(id);
             if(seguimiento.isPresent()){
                 log.info("Seguimiento de envio encontrado con id: {}", id);
-                return ResponseEntity.ok(new ApiResult<>("Seguimiento de envios encontrado : ", seguimiento.get(), HttpStatus.OK.value())); 
+
+                //links HATEOAS
+                List<Link> links = List.of(
+                    linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                    linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                    linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
+                    linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
+                    linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+                );
+                return ResponseEntity.ok(new ApiResult<>("Seguimiento de envios encontrado : ", seguimiento.get(), HttpStatus.OK.value(),links)); 
             }
             else{
                 log.warn("No se encontro seguimiento de envio con id: " + id);
@@ -79,10 +111,20 @@ public class seguimientoController {
             log.info("Post / seguimiento - se crea un nuevo seguimiento de envios");
             Seguimiento nuevoSeguimiento = seguimientoService.crearSeguimiento(seguimiento);
 
+            //links HATEOAS
+            List<Link> links = List.of(
+                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(seguimiento.getId())).withSelfRel(),
+                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId() , seguimiento)).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(seguimiento.getId())).withRel("Eliminar Seguimiento de Envios")
+            );
+
             ApiResult<List<Seguimiento>> respuesta = new ApiResult<>(
                 "Seguimiento de envios creado con exito", 
                 List.of(nuevoSeguimiento), 
-                HttpStatus.CREATED.value()
+                HttpStatus.CREATED.value(), 
+                links
             );  
 
             return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
@@ -110,6 +152,15 @@ public class seguimientoController {
                     .body(new ApiResult<>("Seguimiento de envios no encontrado con id : " + id, null, HttpStatus.NOT_FOUND.value()));
             }
 
+            //links HATEOAS
+            List<Link> links = List.of(
+                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento)).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(seguimiento.getId(), seguimiento)).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+            );
+
             //si el seguimiento existe, se actualiza
             Seguimiento seguimientoEnvio = seguimientoService.getSeguimientoById(id).get();
             seguimientoEnvio.setIdEnvio(seguimiento.getIdEnvio());
@@ -123,7 +174,7 @@ public class seguimientoController {
             Seguimiento seguimientoActualizado = seguimientoService.actualizarSeguimiento(seguimientoEnvio, id); 
             //retornar el resultado con APIResult
             return ResponseEntity.status(HttpStatus.OK)
-                .body(new ApiResult<>("Seguimiento de envios actualizado con exito", List.of(seguimientoActualizado), HttpStatus.OK.value()));
+                .body(new ApiResult<>("Seguimiento de envios actualizado con exito", List.of(seguimientoActualizado), HttpStatus.OK.value(), links));
         }
         catch(Exception e){
             //en caso de error, retornar el error con APIResult
@@ -145,11 +196,20 @@ public class seguimientoController {
                     .body(new ApiResult<>("No se encontro el seguimiento de envio con id : " + id, null, HttpStatus.NOT_FOUND.value())); 
             }
 
+            //links HATEOAS
+            List<Link> links = List.of(
+                linkTo(methodOn(seguimientoController.class).retornaSeguimientoById(id)).withSelfRel(),
+                linkTo(methodOn(seguimientoController.class).retornaTodosLosSeguimientosDeEnvios()).withRel("Lista de Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).crearSeguimiento(seguimiento.get())).withRel("Crear Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).actualizarSeguimientoEnvio(id, seguimiento.get())).withRel("Actualizar Seguimiento de Envios"),
+                linkTo(methodOn(seguimientoController.class).eliminarSeguimientoEnvio(id)).withRel("Eliminar Seguimiento de Envios")
+            );
+
             //si encuentra el seguimiento, se elimina
             log.info("Seguimiento de envio ENCONTRADO con id : " + id);
             seguimientoService.eliminarSeguimiento(id);
             return ResponseEntity.status(HttpStatus.OK)
-                .body(new ApiResult<>("Seguimiento de envios eliminado con exito", "ID de seguimiento eliminado : " + id, HttpStatus.OK.value()));
+                .body(new ApiResult<>("Seguimiento de envios eliminado con exito", "ID de seguimiento eliminado : " + id, HttpStatus.OK.value(), links));
         }
         catch(Exception ex){
             log.error("Error al eliminar seguimiento de envios con id : " + id, ex);

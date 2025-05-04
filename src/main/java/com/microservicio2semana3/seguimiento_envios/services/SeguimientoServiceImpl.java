@@ -6,7 +6,6 @@ import jakarta.annotation.PostConstruct;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SeguimientoServiceImpl implements SeguimientoService {
 
-   @Autowired
-   private SeguimientoEnviosRepository seguimientoEnviosRepository;
+   private final SeguimientoEnviosRepository seguimientoEnviosRepository;
+
+   public SeguimientoServiceImpl(SeguimientoEnviosRepository seguimientoEnviosRepository) {
+        this.seguimientoEnviosRepository = seguimientoEnviosRepository;
+        // inyeccion de dependencias
+    }
 
    @Override
    public List<Seguimiento> getSeguimientos(){
